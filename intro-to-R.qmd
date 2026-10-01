@@ -61,12 +61,12 @@ R is a statistical programming language. That means it is great for working with
 > What data structures do you know of already? (structures to store, retreive and operate on that data)
 
 
-```{r}
-#| echo: false
-#| out-width: "20%" 
-#| fig-align: center
-knitr::include_graphics(path = "26_27_menti_qr.png")
-```
+# ```{r}
+# #| echo: false
+# #| out-width: "20%" 
+# #| fig-align: center
+# knitr::include_graphics(path = "26_27_menti_qr.png")
+# ```
 > What types of data do you know of already? 
 
 > What data structures do you know of already? (structures to store, retreive and operate on that data)
@@ -210,6 +210,11 @@ How would you find the median of `x`? How about the 90th percentile?
 
 ```{r}
 # your code goes here
+median(x)
+quantile(x, 0.9)
+
+# lecture solution
+quantile(x = x, probs = 0.9) # both are fine
 ```
 
 :::{.callout-tip title="Test your understanding"}
@@ -219,6 +224,11 @@ Use `c()` to add a missing value to the start of the vector `x`. How does that i
 
 ```{r}
 # your code goes here
+y <- c(NA, x)
+y
+mean(y)
+median(y)
+quantile(y, probs = 0.9, na.rm = TRUE)
 ``` 
 
 ## Matricies and Arrays 
@@ -238,15 +248,18 @@ Make a 3 by 2 matrix $B$ containing the numbers 1 to 6.
 
 ```{r}
 # your code goes here
+B <- matrix(1:6, nrow = 3)
+B
 ```
 
 :::{.callout-tip title="Test your understanding"}
 
-Use `%*% to calculate $AB$.
+Use `%*%` to calculate $AB$.
 :::
 
 ```{r}
 # your code goes here
+A%*%B
 ```
 
 :::{.callout-tip title="Test your understanding"}
@@ -265,6 +278,13 @@ $$ {#eq-matrix-c}
 
 ```{r}
 #your code goes here
+C <- matrix(c(1, 1, 0,
+              0, 1, 1,
+              0, 0, 1), 
+            nrow = 3, byrow = TRUE)
+C
+C_inv <- solve(C)
+C_inv
 ```
 
 You will often want to calculate row-wise or column-wise summary statistics of matrices and other grid-like data structures. 
@@ -315,6 +335,7 @@ To show the documentation for a function, put a question mark before its name. `
 
 - Look at the documentation for `rowSums()`. What subtle difference is there between `rowSums(A)` and `apply(X = A, MARGIN = 1, FUN = sum)`?
 :::
+
 
 ## Data Frames 
 
@@ -433,6 +454,8 @@ zv <- list(
                         students = 95,
                         online = TRUE))
   )
+
+zv$modules
 ```
 
 R also has some other, application specific, data structures but under the hood these are usually just lists.  
@@ -499,6 +522,8 @@ We can pass vectors as inputs. Smaller inputs will be "recycled"
 
 ```{r}
 dnorm(x = 1:6, mean = 1:3, sd = 1:2)
+#lecture code (same result as above)
+dnorm(x = 1:6, mean = rep(1:3, 2), sd = rep(1:2, 3))
 ```
 
 :::{.callout-tip title="Test your understanding"}
@@ -557,7 +582,23 @@ Make similar plots for the standard exponential distribution.
 :::
 
 ```{r}
-# your code goes here
+#| layout-ncol: 3
+#| fig-cap: "The standard normal distribution."
+#| fig-subcap:
+#|   - "(a) Probability density function"
+#|   - "(b) Cumulative distribution function"
+#|   - "(c) Quantile or inverse cumulative distribution function"
+
+x <- seq(-3, 3, by = 0.01)
+density <- dnorm(x, mean = 0, sd = 1)
+probability <- pnorm(x, mean = 0, sd = 1)
+
+p <- ppoints(1001)
+quantiles <- qnorm(p, mean = 0, sd = 1)
+
+plot(x, density, type = "l", xlab = "x", ylab = "f(x)", lwd = 2)
+plot(x, probability, type = "l", xlab = "x", ylab = "F(x)", lwd = 2)
+plot(p, quantiles, type = "l", xlab = "p", ylab = "quantile", lwd = 2)
 ```
 
 :::{.callout-tip title="Test your understanding"}
@@ -646,6 +687,23 @@ e) Use `hist()` to create a histogram for each of your samples.
 
 ```{r}
 # your code goes here
+
+# set.seed(123)
+
+x1 <- rnorm(n = 100, mean = 0, sd = 1)
+x2 <- rnorm(n = 500, mean = 5, sd = 2)
+
+par(mfrow = c(1, 2))
+qqnorm(x1)
+qqline(x1)
+qqnorm(x2)
+qqline(x2)
+
+par(mfrow = c(1, 2))
+hist(x1)
+hist(x2)
+
+par(mfrow = c(1, 1))
 ```
 
 
@@ -713,6 +771,16 @@ i <- 0
 
 while (j > 0.002) {
   j <- j / 3
+  i <- i + 1
+  print(j)
+}
+
+# lecture code (do not run! infinite!)
+j <- 12 
+i <- 0
+
+while (j > 0.002) {
+  j <- j
   i <- i + 1
   print(j)
 }
@@ -915,7 +983,7 @@ Function definitions can get quite long and messy. In real-world applications we
 - Copy the function definitions into each R file.
 :::
 
-We can now remove the functions from our working environment and load them from their source code. 
+We can now remove the functions from our working environment and load them from their source code.
 
 ```{r}
 rm("pad_with_NAs", "farenheit_to_centigrade")
@@ -935,11 +1003,11 @@ Building up a collection of function definitions like this can:
 
 ## DRY - Use Packages
 
-The last part of this is where `libraries` or `packages` come in. These are ways for people to share their functions, code or data with other people. They are just collections of files like `src/padd_with_NAs.R`, designed to extend to capabilities of base R. 
+The last part of this is where `libraries` or `packages` come in. These are ways for people to share their functions, code or data with other people. They are just collections of files like `src/padd_with_NAs.R`, designed to extend to capabilities of base R.
 
 Making your own R package is surprisingly easy. See [https://r-pkgs.org/](https://r-pkgs.org/) for more details.
 
-Some common packages you might have heard about are `{ggplot2}` for data visualisation, `{dplyr}` for data wrangling or `{ts}` for time-series analyses. 
+Some common packages you might have heard about are `{ggplot2}` for data visualisation, `{dplyr}` for data wrangling or `{ts}` for time-series analyses.
 
 ```{r}
 #| eval: false
@@ -958,16 +1026,16 @@ library("ggplot2")
 head(ggplot2::diamonds, n = 4)
 ```
 
-One thing that good packages have in abundance is documentation. 
+One thing that good packages have in abundance is documentation.
 
-__Quiz:__ run `?diamonds` to learn about the diamonds dataset. 
+__Quiz:__ run `?diamonds` to learn about the diamonds dataset.
 
-There is a package called `{ROxygen2}` that is full of useful functions to help you document your own code. 
+There is a package called `{ROxygen2}` that is full of useful functions to help you document your own code.
 
 ```{r}
 #| eval: false
 install.packages("roxygen2")
-``` 
+```
 
 
 - With cursor inside function go to the menu and click Code > Insert Roxygen Skeleton
@@ -975,12 +1043,12 @@ install.packages("roxygen2")
 
 ```{r}
 pad_with_NAs <- function(x, n_left, n_right){
-  
+
   stopifnot(n_left >= 0)
   stopifnot(n_right >= 0)
-  stopifnot(class(x) %in% c("character", "complex", "integer", 
+  stopifnot(class(x) %in% c("character", "complex", "integer",
                             "logical", "numeric", "factor"))
-  
+
   c(rep(NA, n_left), x, rep(NA, n_right))
 }
 ```
@@ -990,21 +1058,21 @@ This should get you something like this.
 ```{r}
 #' Title
 #'
-#' @param x 
-#' @param n_left 
-#' @param n_right 
+#' @param x
+#' @param n_left
+#' @param n_right
 #'
 #' @returns
 #' @export
 #'
 #' @examples
 pad_with_NAs <- function(x, n_left, n_right){
-  
+
   stopifnot(n_left >= 0)
   stopifnot(n_right >= 0)
-  stopifnot(class(x) %in% c("character", "complex", "integer", 
+  stopifnot(class(x) %in% c("character", "complex", "integer",
                             "logical", "numeric", "factor"))
-  
+
   c(rep(NA, n_left), x, rep(NA, n_right))
 }
 ```
@@ -1026,23 +1094,23 @@ You just need to fill out relevant fields to tell someone else (or future you) w
 #' pad_with_NAs(c("spider", "mouse", "cat", "dog"), n_left = 1, n_right = 2)
 #'
 pad_with_NAs <- function(x, n_left, n_right){
-  
+
   stopifnot(n_left >= 0)
   stopifnot(n_right >= 0)
-  stopifnot(class(x) %in% c("character", "complex", "integer", 
+  stopifnot(class(x) %in% c("character", "complex", "integer",
                             "logical", "numeric", "factor"))
-  
+
   c(rep(NA, n_left), x, rep(NA, n_right))
 }
 ```
 
 :::{.callout-tip title="Test your understanding"}
-Add this documentation to `pad_with_NAs.R` and add your own documentation for to `farenheit_to_centigrade.R`. 
+Add this documentation to `pad_with_NAs.R` and add your own documentation for to `farenheit_to_centigrade.R`.
 :::
 
 # 4. Putting it all together
 
-## Where You Code 
+## Where You Code
 
 | Property              | Notebook | Script | Command Line |
 |-----------------------|:--------:|:------:|:------------:|
@@ -1056,11 +1124,16 @@ Add this documentation to `pad_with_NAs.R` and add your own documentation for to
 ## Putting it all together
 
 1. Install the `palmerpenguins` package and load the `penguins` dataset it contains.
-2. Add an additional column `TRUE`/`FALSE` values indicating whether there are missing values for each penguin. 
+2. Add an additional column `TRUE`/`FALSE` values indicating whether there are missing values for each penguin.
 3. Find the average bill length and flipper length for each species of penguin.
 4. Write a function `species_mean()` that calculates the mean of a numeric variable for each species. Document it with Roxygen2-style comments.
 5. Create a scatter plot of flipper length vs. body mass, with different symbols and colours for each species.
 6. Add points to your scatter plot to show the species-specific mean values, using a different shape or colour.
+
+```{r}
+# do this after lecture
+
+```
 
 
 ## Where to learn more?
@@ -1069,7 +1142,7 @@ Add this documentation to `pad_with_NAs.R` and add your own documentation for to
 
 - [Effective Data Science Notes](https://eds-notes.zakvarty.com/) - Chapters 1 - 4.
 
-- [Telling Stories With Data](https://tellingstorieswithdata.com/20-r_essentials.html) - R essentials 
+- [Telling Stories With Data](https://tellingstorieswithdata.com/20-r_essentials.html) - R essentials
 
 - GTA support during Statistics Clinics
 
